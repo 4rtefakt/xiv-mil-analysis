@@ -54,7 +54,7 @@ export async function runAnalysis(client: FflogsClient, codeInput: string, fight
 	const code = parseReportCode(codeInput)
 	if (!code || typeof fightId !== 'number' || typeof actorId !== 'number') throw new ApiError(400, 'Paramètres invalides')
 
-	const { actors, pulls, level } = await client.getReport(code)
+	const { actors, pulls, level } = await client.getReport(code).catch(asApiError)
 	const pull = pulls.find((p) => p.id === fightId)
 	const actor = actors.find((a) => a.id === actorId)
 	if (!pull || !actor) throw new ApiError(404, 'Pull ou joueur introuvable')
@@ -72,9 +72,11 @@ export async function runAnalysis(client: FflogsClient, codeInput: string, fight
 	// Downtime is best-effort: it's the heaviest fetch, so if FFLogs throttles it
 	// the analysis still returns (just without the downtime correction).
 	let downtime: Window[] = []
+	let downtimeApplied = false
 	try {
 		const damage = await client.getRawEvents(code, pull, 'DamageDone')
 		downtime = inferDowntime(damage.map((e) => e.timestamp), pull.startTime, pull.endTime)
+		downtimeApplied = true
 	} catch {
 		downtime = []
 	}
@@ -96,6 +98,7 @@ export async function runAnalysis(client: FflogsClient, codeInput: string, fight
 		durationMs: pull.endTime - pull.startTime,
 		player: { name: actor.name, job: actor.job },
 		grade: computeGrade(suggestions),
+		downtimeApplied,
 		suggestions,
 		spells: spellInfoFor(job.code),
 	}

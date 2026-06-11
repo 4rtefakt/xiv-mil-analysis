@@ -132,6 +132,10 @@ input[type=text]:focus { border-color: rgba(241,207,126,.55); box-shadow: 0 0 0 
 
 .foot { text-align: center; color: var(--txt-dim); font-size: 11px; letter-spacing: 1.5px; margin-top: 38px; text-transform: uppercase; font-weight: 600; }
 .empty { color: var(--txt-dim); text-align: center; padding: 24px; font-size: 14px; }
+.degraded-note { display: flex; align-items: center; gap: 10px; font-size: 13px; line-height: 1.5; font-weight: 600;
+  color: var(--big); background: rgba(243,182,63,0.10); border: 1px solid rgba(243,182,63,0.3);
+  border-radius: 12px; padding: 11px 16px; margin-bottom: 16px; }
+.degraded-note i { font-size: 18px; flex-shrink: 0; }
 
 /* expandable detail */
 .chev { color: var(--txt-dim); font-size: 18px; transition: transform .3s; margin-left: 4px; }

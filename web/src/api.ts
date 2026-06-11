@@ -82,6 +82,7 @@ export interface AnalyseResponse {
 	durationMs: number
 	player: { name: string; job: string }
 	grade?: string
+	downtimeApplied?: boolean
 	suggestions: Suggestion[]
 	spells: SpellInfo[]
 }

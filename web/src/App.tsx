@@ -401,6 +401,12 @@ function Breakdown({ result, onBack }: { result: AnalyseResponse; onBack: () => 
 				</div>
 			</div>
 
+			{result.downtimeApplied === false && (
+				<div className="degraded-note">
+					<i className="ti ti-alert-triangle" /> Downtime indisponible (FFLogs a limité la requête) — chiffres bruts, non corrigés des phases où le boss n'est pas ciblable. Réanalyse dans un moment pour les valeurs ajustées.
+				</div>
+			)}
+
 			<div className="panel hero-band">
 				<div className="hero-id">
 					<div className="pw">
