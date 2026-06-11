@@ -419,7 +419,7 @@ function Breakdown({ result, onBack }: { result: AnalyseResponse; onBack: () => 
 					</div>
 				</div>
 				<div className="hero-grade">
-					<div className="grade"><div className="grade-inner"><span className="grade-letter">{grade}</span></div></div>
+					<div className="grade"><div className="grade-inner"><span className="grade-letter" style={{ fontSize: grade.length > 1 ? 36 : 52 }}>{grade}</span></div></div>
 					<div className="grade-cap">Note globale</div>
 				</div>
 				<div className="hero-stats">

@@ -9,16 +9,16 @@ describe('computeGrade', () => {
 		expect(computeGrade([])).toBe('—')
 	})
 
-	it('gives S for an all-strengths pull', () => {
-		expect(computeGrade([s('strong'), s('strong'), s('strong')])).toBe('S')
+	it('gives S+ for an all-strengths pull', () => {
+		expect(computeGrade([s('strong'), s('strong'), s('strong')])).toBe('S+')
 	})
 
-	it('stays forgiving — a rough casual pull lands around C, not F', () => {
-		// 5 big gains + 1 small (a typical casual pull)
-		expect(computeGrade([s('big'), s('big'), s('big'), s('big'), s('big'), s('small')])).toBe('C')
+	it('stays kind — a rough casual pull (5 big + 1 small) lands around B', () => {
+		expect(computeGrade([s('big'), s('big'), s('big'), s('big'), s('big'), s('small')])).toBe('B-')
 	})
 
-	it('a single big gain is still an A', () => {
-		expect(computeGrade([s('big'), s('strong'), s('strong')])).toBe('A')
+	it('rewards strengths with a +/- nuance', () => {
+		// 2 big + 1 small + 1 strong → 100 -12 -2 +1.5 = 87.5 → A+
+		expect(computeGrade([s('big'), s('big'), s('small'), s('strong')])).toBe('A+')
 	})
 })

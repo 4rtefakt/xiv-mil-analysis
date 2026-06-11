@@ -1,23 +1,27 @@
 import type { Suggestion } from '../parser/analyser.js'
 
 /**
- * Overall letter grade from the suggestions. Heuristic and tunable: start at
- * 100, dock points per improvement opportunity (a "big gain" costs more than a
- * "small gain"; strengths cost nothing). Curve is intentionally forgiving so a
- * casual pull with a few things to work on still lands around C, not F.
+ * Overall grade from the suggestions — deliberately kind. Start at 100, dock a
+ * little per improvement opportunity (a "big gain" more than a "small" one) and
+ * REWARD strengths. The curve is forgiving so a casual pull with a few things to
+ * work on lands around B, and good play reaches S. Result includes a +/- nuance.
  */
+const BANDS: Array<[number, string]> = [
+	[97, 'S+'], [93, 'S'], [89, 'S-'],
+	[85, 'A+'], [81, 'A'], [77, 'A-'],
+	[73, 'B+'], [69, 'B'], [65, 'B-'],
+	[60, 'C+'], [55, 'C'], [50, 'C-'],
+	[43, 'D+'], [36, 'D'], [0, 'D-'],
+]
+
 export function computeGrade(suggestions: Suggestion[]): string {
 	if (suggestions.length === 0) return '—'
 	let score = 100
 	for (const s of suggestions) {
-		if (s.category === 'big') score -= 8
-		else if (s.category === 'small') score -= 2.5
+		if (s.category === 'big') score -= 6
+		else if (s.category === 'small') score -= 2
+		else score += 1.5 // strength: reward keeping things tight
 	}
 	score = Math.max(0, Math.min(100, score))
-	if (score >= 93) return 'S'
-	if (score >= 82) return 'A'
-	if (score >= 70) return 'B'
-	if (score >= 56) return 'C'
-	if (score >= 42) return 'D'
-	return 'E'
+	return BANDS.find(([min]) => score >= min)![1]
 }
