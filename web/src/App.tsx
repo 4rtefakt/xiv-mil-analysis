@@ -314,7 +314,7 @@ function BurstWindowsDetail({ d, spells }: { d: Extract<SuggestionDetail, { kind
 					<div className="bw-actions">
 						{w.actionIds.map((id, k) => {
 							const info = spells.get(id)
-							return info && !info.locked ? <img key={k} className="bw-act" src={iconUrl(info.icon)} title={info.name} alt="" /> : null
+							return info && !info.locked ? <img key={k} className="bw-act" data-spell={info.id} src={iconUrl(info.icon)} alt="" /> : null
 						})}
 					</div>
 					{w.missingIds.length > 0 && (
@@ -374,7 +374,7 @@ function Breakdown({ result, onBack }: { result: AnalyseResponse; onBack: () => 
 	const stMetric = result.suggestions.find((s) => s.id.includes('surging'))?.metric
 
 	const onOver = (e: ReactMouseEvent) => {
-		const el = (e.target as HTMLElement).closest('.spell')
+		const el = (e.target as HTMLElement).closest('[data-spell]')
 		if (!el) return
 		const info = spells.get(Number(el.getAttribute('data-spell')))
 		if (!info) return
@@ -382,7 +382,7 @@ function Breakdown({ result, onBack }: { result: AnalyseResponse; onBack: () => 
 		setTip({ info, x: r.left, top: r.top, bottom: r.bottom, below: r.top < 180 })
 	}
 	const onOut = (e: ReactMouseEvent) => {
-		if ((e.target as HTMLElement).closest('.spell')) setTip(null)
+		if ((e.target as HTMLElement).closest('[data-spell]')) setTip(null)
 	}
 
 	return (

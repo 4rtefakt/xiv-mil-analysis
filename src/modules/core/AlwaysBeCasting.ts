@@ -2,8 +2,10 @@ import { activeDurationMs, Analyser, type Suggestion, type SuggestionDetail } fr
 import { subtract, type Window } from '../../analysis/downtime.js'
 import type { GameEvent } from '../../fflogs/types.js'
 
-const EXPECTED_GCD = 2500 // ms; a touch generous so weaving/clipping isn't flagged
-const TOLERANCE = 150
+const EXPECTED_GCD = 2500 // ms
+// Only count a gap as dead time once it's clearly more than one GCD — a small
+// overrun (weaving, a clipped GCD) isn't a real pause and shouldn't be flagged.
+const MIN_DEAD = 1500
 
 /**
  * Always Be Casting — GCD uptime. Job-agnostic: it only asks the resolved kit
@@ -27,10 +29,11 @@ export class AlwaysBeCasting extends Analyser {
 		const gaps: Window[] = []
 		for (let i = 1; i < times.length; i++) {
 			const deadStart = times[i - 1]! + EXPECTED_GCD
-			if (times[i]! - deadStart > TOLERANCE) gaps.push({ startMs: deadStart, endMs: times[i]! })
+			if (times[i]! - deadStart >= MIN_DEAD) gaps.push({ startMs: deadStart, endMs: times[i]! })
 		}
-		// …minus downtime (untargetable boss isn't your fault).
-		const windows = gaps.flatMap((g) => subtract(g.startMs, g.endMs, this.ctx.downtime, 300))
+		// …minus downtime (untargetable boss isn't your fault), keeping only spans
+		// that are still meaningfully long.
+		const windows = gaps.flatMap((g) => subtract(g.startMs, g.endMs, this.ctx.downtime, MIN_DEAD))
 		const deadMs = windows.reduce((s, w) => s + (w.endMs - w.startMs), 0)
 
 		const activeDur = activeDurationMs(this.ctx)
