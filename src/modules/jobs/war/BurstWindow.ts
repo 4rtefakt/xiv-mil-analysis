@@ -42,7 +42,8 @@ export class BurstWindow extends Analyser {
 		if (upheavalAvailable && !hasUpheaval) missingIds.push(UPHEAVAL)
 		const ok = fellCleaves >= 3 && (!upheavalAvailable || hasUpheaval)
 
-		this.windows.push({ tMs: this.open.start, ok, actionIds: [7389, ...new Set(casts)], missingIds })
+		// Keep repetitions (3 Fell Cleaves → 3 icons) — deduping was misleading.
+		this.windows.push({ tMs: this.open.start, ok, actionIds: [7389, ...casts], missingIds })
 		this.open = undefined
 	}
 
