@@ -63,19 +63,28 @@ export class FflogsClient {
 
 	private async query<T>(query: string, variables: Record<string, unknown>): Promise<T> {
 		if (!this.token) this.token = await getAccessToken(this.creds)
-		const res = await fetch(GRAPHQL_URL, {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${this.token}`,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ query, variables }),
-		})
-		if (!res.ok) throw new Error(`FFLogs GraphQL ${res.status}: ${await res.text()}`)
-		const json = (await res.json()) as { data?: T; errors?: Array<{ message: string }> }
-		if (json.errors?.length) throw new Error(`FFLogs GraphQL errors: ${json.errors.map((e) => e.message).join('; ')}`)
-		if (!json.data) throw new Error('FFLogs GraphQL returned no data')
-		return json.data
+		const body = JSON.stringify({ query, variables })
+
+		// Retry on rate-limit (429) and transient 5xx with a short backoff —
+		// FFLogs throttles per IP, and on Cloudflare every request shares one.
+		for (let attempt = 0; ; attempt++) {
+			const res = await fetch(GRAPHQL_URL, {
+				method: 'POST',
+				headers: { Authorization: `Bearer ${this.token}`, 'Content-Type': 'application/json' },
+				body,
+			})
+			if ((res.status === 429 || res.status >= 500) && attempt < 2) {
+				const retryAfter = Number(res.headers.get('retry-after'))
+				const waitS = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 1.5 * (attempt + 1)
+				await new Promise((r) => setTimeout(r, waitS * 1000))
+				continue
+			}
+			if (!res.ok) throw new Error(`FFLogs GraphQL ${res.status}: ${await res.text()}`)
+			const json = (await res.json()) as { data?: T; errors?: Array<{ message: string }> }
+			if (json.errors?.length) throw new Error(`FFLogs GraphQL errors: ${json.errors.map((e) => e.message).join('; ')}`)
+			if (!json.data) throw new Error('FFLogs GraphQL returned no data')
+			return json.data
+		}
 	}
 
 	/**
