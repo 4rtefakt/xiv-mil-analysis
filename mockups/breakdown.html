@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xiv-mil-analysis — breakdown</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-top: #161d3a; --bg-bot: #0b0f1f;
+    --panel: rgba(30, 39, 70, 0.58);
+    --gold: #f1cf7e; --gold-deep: #c79a44;
+    --blue: #6fc8e8; --violet: #9b7be2;
+    --war: #e8534a; --war-deep: #97241e;
+    --good: #46dba2; --warn: #f6be4d; --danger: #ff7163;
+    --txt: #f3eee2; --txt-dim: #9aa4c2;
+    --line: rgba(241,207,126,0.22);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--bg-bot); }
+  body {
+    font-family: 'Mulish', system-ui, sans-serif; color: var(--txt);
+    min-height: 100vh; padding: 42px 28px 80px; position: relative; overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(760px 520px at 8% -6%, rgba(232,83,74,0.20), transparent 60%),
+      radial-gradient(720px 560px at 98% 4%, rgba(111,200,232,0.18), transparent 58%),
+      radial-gradient(900px 700px at 60% 110%, rgba(155,123,226,0.16), transparent 60%),
+      radial-gradient(600px 400px at 30% 50%, rgba(241,207,126,0.07), transparent 60%),
+      linear-gradient(165deg, var(--bg-top), var(--bg-bot) 72%);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+    backdrop-filter: blur(12px); position: relative;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+  }
+  .panel::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 1px; border-radius: 18px 18px 0 0;
+    background: linear-gradient(90deg, transparent, rgba(241,207,126,0.55), transparent);
+  }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 26px; flex-wrap: wrap; }
+  .enc { display: flex; align-items: center; gap: 16px; }
+  .enc-sigil {
+    width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center;
+    color: var(--war); font-size: 27px;
+    background: radial-gradient(circle at 35% 30%, rgba(232,83,74,0.30), rgba(30,39,70,0.6));
+    border: 1px solid rgba(232,83,74,0.4); box-shadow: 0 0 26px rgba(232,83,74,0.25);
+  }
+  .enc h1 { font-family: 'Cinzel', serif; font-weight: 600; font-size: 27px; color: #fff; line-height: 1; }
+  .enc .sub { color: var(--txt-dim); font-size: 13.5px; margin-top: 7px; font-weight: 500; }
+  .enc .sub .wipe { color: var(--danger); font-weight: 700; }
+
+  .lvl-crystal {
+    position: relative; overflow: hidden; padding: 12px 22px; border-radius: 14px;
+    display: flex; align-items: center; gap: 14px;
+    background: linear-gradient(135deg, rgba(241,207,126,0.22), rgba(241,207,126,0.05));
+    border: 1px solid rgba(241,207,126,0.5);
+    box-shadow: 0 0 26px rgba(241,207,126,0.16);
+  }
+  .lvl-crystal .ic { color: var(--gold); font-size: 23px; filter: drop-shadow(0 0 7px rgba(241,207,126,.55)); }
+  .lvl-crystal .lab { font-size: 10.5px; letter-spacing: 2.4px; color: var(--gold-deep); text-transform: uppercase; font-weight: 700; }
+  .lvl-crystal .val { font-family: 'Cinzel', serif; font-size: 23px; font-weight: 700; color: var(--gold); line-height: 1.1; }
+  .lvl-crystal::after {
+    content: ""; position: absolute; top: 0; left: -70%; width: 55%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.4), transparent);
+    transform: skewX(-18deg); animation: sheen 1.1s ease-out 0.9s 1 both;
+  }
+  @keyframes sheen { from { left: -70%; } to { left: 150%; } }
+
+  .grid { display: grid; grid-template-columns: 330px 1fr; gap: 22px; align-items: start; }
+
+  .hero { padding: 28px 24px 24px; text-align: center; overflow: hidden; }
+  .portrait-wrap { position: relative; width: 132px; height: 132px; margin: 4px auto 0; }
+  .portrait {
+    width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 50% 32%, #33406e, #161d3a 100%);
+    border: 3px solid var(--gold); color: rgba(255,255,255,0.42); font-size: 60px;
+    box-shadow: 0 0 0 6px rgba(232,83,74,0.18), 0 0 34px rgba(232,83,74,0.3);
+    overflow: hidden;
+  }
+  .portrait .ph-note { position: absolute; bottom: 14px; font-size: 9px; letter-spacing: 1px; color: var(--txt-dim); text-transform: uppercase; }
+  .lv-badge {
+    position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--gold), var(--gold-deep)); color: #2a1c05;
+    font-weight: 800; font-size: 12px; letter-spacing: .5px; padding: 4px 14px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 4px 14px rgba(0,0,0,.4); white-space: nowrap;
+  }
+  .pname { font-family: 'Cinzel', serif; font-size: 22px; color: #fff; margin-top: 20px; }
+  .prole { display: inline-flex; align-items: center; gap: 7px; color: var(--war); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-top: 6px; }
+
+  .grade {
+    position: relative; width: 124px; height: 124px; margin: 22px auto 4px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: conic-gradient(from 220deg, var(--blue), var(--violet), var(--good), var(--blue));
+    padding: 4px; transform: scale(0.5); opacity: 0; animation: pop .7s cubic-bezier(.2,1.5,.4,1) .35s forwards;
+    box-shadow: 0 0 32px rgba(111,200,232,0.35);
+  }
+  @keyframes pop { to { transform: scale(1); opacity: 1; } }
+  .grade-inner {
+    width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 50% 38%, #20294b, #121831);
+    display: grid; place-items: center;
+  }
+  .grade-letter { font-family: 'Cinzel', serif; font-size: 56px; font-weight: 700; color: #fff; line-height: 1;
+    background: linear-gradient(160deg, #cfeeff, #8fd4f0); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .grade-cap { font-size: 10.5px; letter-spacing: 2.5px; color: var(--txt-dim); text-transform: uppercase; margin-top: 12px; font-weight: 700; }
+
+  .ministats { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 22px; }
+  .ms { background: rgba(13,18,36,0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 8px; }
+  .ms .v { font-size: 20px; font-weight: 800; }
+  .ms .v small { font-size: 12px; color: var(--txt-dim); font-weight: 600; }
+  .ms .k { font-size: 10px; letter-spacing: 1px; color: var(--txt-dim); text-transform: uppercase; margin-top: 4px; font-weight: 700; }
+
+  .findings { display: flex; flex-direction: column; gap: 14px; }
+  .grp-head { display: flex; align-items: center; gap: 12px; margin: 8px 0 2px; }
+  .grp-head .pip { width: 10px; height: 10px; border-radius: 50%; }
+  .grp-head h2 { font-family: 'Cinzel', serif; font-weight: 600; font-size: 15px; color: var(--txt); }
+  .grp-head .ct { font-size: 12px; color: var(--txt-dim); font-weight: 700; }
+  .grp-head .rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+  .pip.danger { background: var(--danger); box-shadow: 0 0 12px var(--danger); }
+  .pip.warn { background: var(--warn); box-shadow: 0 0 12px var(--warn); }
+  .pip.good { background: var(--good); box-shadow: 0 0 12px var(--good); }
+
+  .card {
+    position: relative; padding: 18px 20px; border-radius: 16px; border: 1px solid var(--line);
+    backdrop-filter: blur(8px); overflow: hidden;
+    transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s, border-color .25s;
+    opacity: 0; transform: translateY(14px); animation: rise .6s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+  .card.danger { background: linear-gradient(120deg, rgba(255,113,99,0.14), rgba(30,39,70,0.5)); border-color: rgba(255,113,99,0.35); }
+  .card.warn { background: linear-gradient(120deg, rgba(246,190,77,0.12), rgba(30,39,70,0.5)); border-color: rgba(246,190,77,0.32); }
+  .card.good { background: linear-gradient(120deg, rgba(70,219,162,0.12), rgba(30,39,70,0.5)); border-color: rgba(70,219,162,0.32); }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(0,0,0,.42); }
+  .card.danger:hover { border-color: rgba(255,113,99,0.6); box-shadow: 0 16px 38px rgba(255,113,99,0.14); }
+
+  .card-top { display: flex; align-items: center; gap: 13px; }
+  .card-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 21px; flex-shrink: 0; }
+  .danger .card-ic { color: var(--danger); background: rgba(255,113,99,0.16); }
+  .warn .card-ic { color: var(--warn); background: rgba(246,190,77,0.16); }
+  .good .card-ic { color: var(--good); background: rgba(70,219,162,0.16); }
+  .card-title { font-size: 16.5px; font-weight: 700; color: #fff; flex: 1; }
+  .card-metric { font-size: 23px; font-weight: 800; font-family: 'Cinzel', serif; }
+  .danger .card-metric { color: var(--danger); }
+  .warn .card-metric { color: var(--warn); }
+  .good .card-metric { color: var(--good); }
+  .card-body { color: #cdd4e6; font-size: 13.5px; line-height: 1.65; margin-top: 12px; }
+  .card-body .hl { color: var(--good); font-weight: 700; }
+
+  .bar { height: 9px; margin-top: 14px; background: rgba(255,255,255,0.08); border-radius: 6px; overflow: visible; position: relative; }
+  .bar > span { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 6px;
+    background: linear-gradient(90deg, var(--war-deep), var(--danger)); box-shadow: 0 0 14px rgba(255,113,99,0.6);
+    transition: width 1.5s cubic-bezier(.16,1,.3,1); }
+  .bar .target { position: absolute; top: -4px; bottom: -4px; width: 3px; border-radius: 2px; background: var(--good); box-shadow: 0 0 10px var(--good); }
+  .bar-legend { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--txt-dim); margin-top: 8px; font-weight: 600; }
+
+  .soon { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-radius: 14px; opacity: 0.5;
+    background: rgba(15,21,37,0.4); border: 1px dashed var(--line); }
+  .soon .si { font-size: 18px; color: var(--txt-dim); }
+  .soon .st { flex: 1; font-size: 14px; font-weight: 600; }
+  .soon .tag { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; color: var(--gold-deep); border: 1px solid rgba(199,154,68,0.4); padding: 3px 10px; border-radius: 20px; }
+
+  .foot { text-align: center; color: var(--txt-dim); font-size: 11px; letter-spacing: 1.5px; margin-top: 38px; text-transform: uppercase; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="enc">
+      <div class="enc-sigil"><i class="ti ti-flame"></i></div>
+      <div>
+        <h1>Shinryu</h1>
+        <div class="sub">Pull #7 · 4:57 · <span class="wipe">Wipe 12%</span></div>
+      </div>
+    </div>
+    <div class="lvl-crystal">
+      <i class="ti ti-arrow-big-down-lines ic"></i>
+      <div>
+        <div class="lab">Synchronisé</div>
+        <div class="val">Nv. 70</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <div class="panel hero">
+      <div class="portrait-wrap">
+        <div class="portrait">
+          <i class="ti ti-user"></i>
+          <span class="ph-note">portrait Lodestone</span>
+        </div>
+        <span class="lv-badge">GUERRIER · Nv.70</span>
+      </div>
+
+      <div class="pname">Rhesh'a Tefakt</div>
+      <div class="prole"><i class="ti ti-axe"></i> Guerrier</div>
+
+      <div class="grade">
+        <div class="grade-inner"><span class="grade-letter">A</span></div>
+      </div>
+      <div class="grade-cap">Note globale</div>
+
+      <div class="ministats">
+        <div class="ms"><div class="v" style="color:var(--blue)">82,7<small>%</small></div><div class="k">Surging Tempest</div></div>
+        <div class="ms"><div class="v">2.48<small>s</small></div><div class="k">GCD moyen</div></div>
+        <div class="ms"><div class="v" style="color:var(--danger)">2</div><div class="k">Morts</div></div>
+        <div class="ms"><div class="v">83<small>%</small></div><div class="k">Uptime GCD</div></div>
+      </div>
+    </div>
+
+    <div class="findings">
+
+      <div class="grp-head"><span class="pip danger"></span><h2>À corriger</h2><span class="ct">1</span><span class="rule"></span></div>
+
+      <div class="card danger" style="animation-delay:.05s">
+        <div class="card-top">
+          <div class="card-ic"><i class="ti ti-alert-triangle"></i></div>
+          <div class="card-title">Surging Tempest</div>
+          <div class="card-metric">82,7%</div>
+        </div>
+        <div class="card-body">
+          Surging Tempest augmente tes dégâts de 10% — vise un uptime proche de 100%. Place Storm's Eye assez tôt et refais ton combo avant qu'il tombe (30s, jusqu'à 60s en le rafraîchissant).
+        </div>
+        <div class="bar"><span id="stBar"></span><div class="target" style="left:97%"></div></div>
+        <div class="bar-legend"><span>0%</span><span style="color:var(--good)">cible ~97%</span></div>
+      </div>
+
+      <div class="grp-head"><span class="pip warn"></span><h2>À améliorer</h2><span class="ct">2</span><span class="rule"></span></div>
+
+      <div class="card warn" style="animation-delay:.12s">
+        <div class="card-top">
+          <div class="card-ic"><i class="ti ti-stopwatch"></i></div>
+          <div class="card-title">Utilisation des cooldowns</div>
+          <div class="card-metric">43/52</div>
+        </div>
+        <div class="card-body">
+          Inner Release 6/8, Infuriate 14/16, Upheaval 9/14, Onslaught 9/14. <span class="hl">Orogeny non comptée — indisponible au Nv.70.</span> Garde tes oGCD sur cooldown pour ne pas perdre d'utilisations.
+        </div>
+      </div>
+
+      <div class="card warn" style="animation-delay:.18s">
+        <div class="card-top">
+          <div class="card-ic"><i class="ti ti-link-off"></i></div>
+          <div class="card-title">Combos cassés</div>
+          <div class="card-metric">6</div>
+        </div>
+        <div class="card-body">
+          6 combos interrompus (2:05, 3:36, 4:07…) — chaque rupture te fait repartir au début et perd du gain de jauge.
+        </div>
+      </div>
+
+      <div class="grp-head"><span class="pip good"></span><h2>Bien joué</h2><span class="ct">2</span><span class="rule"></span></div>
+
+      <div class="card good" style="animation-delay:.24s">
+        <div class="card-top">
+          <div class="card-ic"><i class="ti ti-check"></i></div>
+          <div class="card-title">Inner Release bien aligné</div>
+          <div class="card-metric">100%</div>
+        </div>
+        <div class="card-body">Toutes tes fenêtres Inner Release ont été consommées sans gâcher de stack. Continue comme ça.</div>
+      </div>
+
+      <div class="card good" style="animation-delay:.30s">
+        <div class="card-top">
+          <div class="card-ic"><i class="ti ti-bolt"></i></div>
+          <div class="card-title">Aucun temps mort évitable</div>
+          <div class="card-metric">+</div>
+        </div>
+        <div class="card-body">Ton uptime GCD est bon pour le niveau — peu de pauses entre les sorts.</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+        <div class="soon"><i class="ti ti-droplet si"></i><span class="st">Overcap de jauge Beast</span><span class="tag">bientôt</span></div>
+        <div class="soon"><i class="ti ti-activity si"></i><span class="st">Uptime GCD / weaving (downtime-aware)</span><span class="tag">bientôt</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="foot">xiv-mil-analysis · maquette · analysé au niveau synchronisé</div>
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => { document.getElementById('stBar').style.width = '82.7%'; }, 300);
+  });
+</script>
+</body>
+</html>

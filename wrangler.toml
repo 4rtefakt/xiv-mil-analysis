@@ -1,0 +1,7 @@
+# Cloudflare Pages config. The static front is built into web/dist; the API
+# lives in functions/ (Pages Functions, Workers runtime). Set FFLOGS_CLIENT_ID
+# and FFLOGS_CLIENT_SECRET as Pages environment variables (encrypted) — never
+# commit them.
+name = "xiv-mil-analysis"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "web/dist"

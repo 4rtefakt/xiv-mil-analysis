@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>breakdown — vertical + détails + tooltips</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg-top:#161d3a; --bg-bot:#0b0f1f; --panel:rgba(30,39,70,0.58); --gold:#f1cf7e; --gold-deep:#c79a44;
+    --blue:#6fc8e8; --violet:#9b7be2; --war:#e8534a; --war-deep:#97241e; --down:#ef6a6a;
+    --big:#f3b63f; --small:#6fc8e8; --strong:#46dba2; --txt:#f3eee2; --txt-dim:#9aa4c2; --line:rgba(241,207,126,0.22); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:var(--bg-bot); }
+  body { font-family:'Mulish',system-ui,sans-serif; color:var(--txt); min-height:100vh; padding:42px 28px 80px; position:relative; overflow-x:hidden; }
+  body::before { content:""; position:fixed; inset:0; z-index:-1;
+    background: radial-gradient(760px 520px at 8% -6%, rgba(243,182,63,0.16), transparent 60%),
+      radial-gradient(720px 560px at 98% 4%, rgba(111,200,232,0.16), transparent 58%),
+      radial-gradient(900px 700px at 60% 112%, rgba(155,123,226,0.15), transparent 60%),
+      linear-gradient(165deg, var(--bg-top), var(--bg-bot) 72%); }
+  .wrap { max-width:1180px; margin:0 auto; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:18px; backdrop-filter:blur(12px); position:relative; box-shadow:0 18px 50px rgba(0,0,0,0.35); }
+  .panel::before { content:""; position:absolute; inset:0 0 auto 0; height:1px; border-radius:18px 18px 0 0; background:linear-gradient(90deg,transparent,rgba(241,207,126,0.55),transparent); }
+
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:24px; flex-wrap:wrap; }
+  .enc { display:flex; align-items:center; gap:16px; }
+  .enc-sigil { width:54px; height:54px; border-radius:16px; display:grid; place-items:center; color:var(--war); font-size:27px;
+    background:radial-gradient(circle at 35% 30%, rgba(232,83,74,0.30), rgba(30,39,70,0.6)); border:1px solid rgba(232,83,74,0.4); box-shadow:0 0 26px rgba(232,83,74,0.25); }
+  .enc h1 { font-family:'Cinzel',serif; font-weight:600; font-size:27px; color:#fff; line-height:1; }
+  .enc .sub { color:var(--txt-dim); font-size:13.5px; margin-top:7px; font-weight:500; } .enc .sub .res { color:var(--war); font-weight:700; }
+  .lvl-crystal { position:relative; overflow:hidden; padding:12px 22px; border-radius:14px; display:flex; align-items:center; gap:14px;
+    background:linear-gradient(135deg, rgba(241,207,126,0.22), rgba(241,207,126,0.05)); border:1px solid rgba(241,207,126,0.5); box-shadow:0 0 26px rgba(241,207,126,0.16); }
+  .lvl-crystal .ic { color:var(--gold); font-size:23px; filter:drop-shadow(0 0 7px rgba(241,207,126,.55)); }
+  .lvl-crystal .lab { font-size:10.5px; letter-spacing:2.4px; color:var(--gold-deep); text-transform:uppercase; font-weight:700; }
+  .lvl-crystal .val { font-family:'Cinzel',serif; font-size:23px; font-weight:700; color:var(--gold); line-height:1.1; }
+  .lvl-crystal::after { content:""; position:absolute; top:0; left:-70%; width:55%; height:100%; background:linear-gradient(100deg,transparent,rgba(255,255,255,.4),transparent); transform:skewX(-18deg); animation:sheen 1.1s ease-out 0.9s 1 both; }
+  @keyframes sheen { from{left:-70%;} to{left:150%;} }
+
+  .hero-band { display:grid; grid-template-columns:auto 1fr auto; gap:30px; align-items:center; padding:22px 30px; margin-bottom:22px; }
+  .hero-id { display:flex; align-items:center; gap:20px; }
+  .pw { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .portrait { width:104px; height:104px; border-radius:50%; display:grid; place-items:center; position:relative;
+    background:radial-gradient(circle at 50% 32%, #33406e, #161d3a 100%); border:3px solid var(--gold); color:rgba(255,255,255,0.42); font-size:46px; box-shadow:0 0 0 6px rgba(232,83,74,0.18), 0 0 34px rgba(232,83,74,0.3); }
+  .portrait .ph-note { position:absolute; bottom:11px; font-size:8.5px; letter-spacing:1px; color:var(--txt-dim); text-transform:uppercase; }
+  .lv-badge { background:linear-gradient(135deg,var(--gold),var(--gold-deep)); color:#2a1c05; font-weight:800; font-size:11.5px; padding:4px 13px; border-radius:20px; white-space:nowrap; border:1px solid rgba(255,255,255,0.4); box-shadow:0 4px 14px rgba(0,0,0,.4); }
+  .pname { font-family:'Cinzel',serif; font-size:22px; color:#fff; }
+  .prole { display:inline-flex; align-items:center; gap:7px; color:var(--war); font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-top:6px; }
+  .hero-grade { text-align:center; }
+  .grade { position:relative; width:116px; height:116px; border-radius:50%; display:grid; place-items:center; margin:0 auto 8px;
+    background:conic-gradient(from 220deg, var(--blue), var(--violet), var(--strong), var(--blue)); padding:4px; transform:scale(0.5); opacity:0; animation:pop .7s cubic-bezier(.2,1.5,.4,1) .35s forwards; box-shadow:0 0 32px rgba(111,200,232,0.35); }
+  @keyframes pop { to{transform:scale(1);opacity:1;} }
+  .grade-inner { width:100%; height:100%; border-radius:50%; background:radial-gradient(circle at 50% 38%, #20294b, #121831); display:grid; place-items:center; }
+  .grade-letter { font-family:'Cinzel',serif; font-size:52px; font-weight:700; background:linear-gradient(160deg,#cfeeff,#8fd4f0); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .grade-cap { font-size:10.5px; letter-spacing:2.5px; color:var(--txt-dim); text-transform:uppercase; font-weight:700; }
+  .hero-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; min-width:420px; }
+  .ms { background:rgba(13,18,36,0.55); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px 8px; text-align:center; }
+  .ms .v { font-size:20px; font-weight:800; } .ms .v small { font-size:12px; color:var(--txt-dim); font-weight:600; }
+  .ms .k { font-size:10px; letter-spacing:1px; color:var(--txt-dim); text-transform:uppercase; margin-top:4px; font-weight:700; }
+
+  .sections { display:flex; flex-direction:column; gap:12px; }
+  .grp-head { display:flex; align-items:center; gap:12px; margin:6px 0 2px; }
+  .grp-head .pip { width:11px; height:11px; border-radius:50%; }
+  .grp-head h2 { font-family:'Cinzel',serif; font-weight:600; font-size:16px; color:var(--txt); }
+  .grp-head .ct { font-size:12px; color:var(--txt-dim); font-weight:700; } .grp-head .rule { flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent); }
+  .pip.big { background:var(--big); box-shadow:0 0 12px var(--big); } .pip.small { background:var(--small); box-shadow:0 0 12px var(--small); } .pip.strong { background:var(--strong); box-shadow:0 0 12px var(--strong); }
+
+  .card { position:relative; padding:18px 20px; border-radius:16px; border:1px solid var(--line); backdrop-filter:blur(8px); overflow:hidden;
+    transition:transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s, border-color .25s; opacity:0; transform:translateY(14px); animation:rise .6s cubic-bezier(.16,1,.3,1) forwards; }
+  @keyframes rise { to{opacity:1;transform:translateY(0);} }
+  .card.big { background:linear-gradient(120deg, rgba(243,182,63,0.14), rgba(30,39,70,0.5)); border-color:rgba(243,182,63,0.35); }
+  .card.small { background:linear-gradient(120deg, rgba(111,200,232,0.12), rgba(30,39,70,0.5)); border-color:rgba(111,200,232,0.30); }
+  .card.strong { background:linear-gradient(120deg, rgba(70,219,162,0.12), rgba(30,39,70,0.5)); border-color:rgba(70,219,162,0.30); }
+  .card.clk { cursor:pointer; } .card.clk:hover { transform:translateY(-3px); box-shadow:0 16px 38px rgba(0,0,0,.42); }
+  .card.big.clk:hover { border-color:rgba(243,182,63,0.6); box-shadow:0 16px 38px rgba(243,182,63,0.14); }
+  .card-top { display:flex; align-items:center; gap:13px; }
+  .card-ic { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; font-size:21px; flex-shrink:0; }
+  .big .card-ic { color:var(--big); background:rgba(243,182,63,0.16); } .small .card-ic { color:var(--small); background:rgba(111,200,232,0.16); } .strong .card-ic { color:var(--strong); background:rgba(70,219,162,0.16); }
+  .card-title { font-size:16.5px; font-weight:700; color:#fff; flex:1; }
+  .card-metric { font-size:23px; font-weight:800; font-family:'Cinzel',serif; }
+  .big .card-metric { color:var(--big); } .small .card-metric { color:var(--small); } .strong .card-metric { color:var(--strong); }
+  .chev { color:var(--txt-dim); font-size:18px; transition:transform .3s; margin-left:4px; } .card.open .chev { transform:rotate(180deg); }
+  .card-body { color:#cdd4e6; font-size:13.5px; line-height:1.7; margin-top:12px; }
+  .bar { height:9px; margin-top:14px; background:rgba(255,255,255,0.08); border-radius:6px; position:relative; }
+  .bar > span { position:absolute; left:0; top:0; bottom:0; width:0; border-radius:6px; background:linear-gradient(90deg,var(--gold-deep),var(--big)); box-shadow:0 0 14px rgba(243,182,63,0.6); transition:width 1.5s cubic-bezier(.16,1,.3,1); }
+  .bar .target { position:absolute; top:-4px; bottom:-4px; width:3px; border-radius:2px; background:var(--strong); box-shadow:0 0 10px var(--strong); }
+  .bar-legend { display:flex; justify-content:space-between; font-size:11.5px; color:var(--txt-dim); margin-top:8px; font-weight:600; }
+
+  .detail { max-height:0; opacity:0; overflow:hidden; transition:max-height .5s ease, opacity .4s, margin .4s; }
+  .card.open .detail { max-height:1300px; opacity:1; margin-top:16px; }
+  .detail-inner { border-top:1px solid var(--line); padding-top:16px; }
+  .dlabel { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--txt-dim); font-weight:700; margin:0 0 10px; }
+  .dstats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
+  .tl-track { position:relative; height:28px; border-radius:7px; background:repeating-linear-gradient(90deg, rgba(239,106,106,0.16) 0 6px, rgba(239,106,106,0.10) 6px 12px); border:1px solid rgba(239,106,106,0.28); overflow:hidden; }
+  .tl-up { position:absolute; top:0; bottom:0; background:linear-gradient(180deg,#f6c456,#c79a44); box-shadow:inset 0 0 8px rgba(255,255,255,.2); }
+  .tl-axis { display:flex; justify-content:space-between; margin-top:7px; font-size:10.5px; color:var(--txt-dim); font-weight:600; }
+  .downlist { list-style:none; margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+  .downlist li { font-size:13px; color:#d7dcea; display:flex; align-items:center; gap:10px; }
+  .downlist li b { color:var(--down); font-family:'Cinzel',serif; font-weight:700; min-width:92px; }
+  .downlist li.ok b { color:var(--strong); }
+  .cd-row { display:flex; align-items:center; gap:14px; padding:17px 0 11px; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .cd-row:last-child { border-bottom:none; }
+  .cd-name { width:158px; flex-shrink:0; font-size:13.5px; } .cd-name .rc { display:block; font-size:11px; color:var(--txt-dim); font-weight:600; margin-top:1px; }
+  .cd-line { flex:1; position:relative; height:14px; } .cd-base { position:absolute; left:0; right:0; top:6px; height:2px; background:rgba(255,255,255,0.1); }
+  .cd-dot { position:absolute; top:1px; width:12px; height:12px; border-radius:50%; transform:translateX(-50%); }
+  .cd-dot.g { background:var(--strong); box-shadow:0 0 7px rgba(70,219,162,.5); }
+  .cd-dot.a { background:var(--big); box-shadow:0 0 7px rgba(243,182,63,.55); }
+  .cd-dot.r { background:var(--down); box-shadow:0 0 7px rgba(239,106,106,.6); }
+  .cd-lab { position:absolute; top:-15px; transform:translateX(-50%); font-size:9.5px; font-weight:800; white-space:nowrap; }
+  .cd-lab.a { color:var(--big); } .cd-lab.r { color:var(--down); }
+  .cd-drift { width:48px; text-align:right; font-family:'Cinzel',serif; font-weight:800; font-size:15px; flex-shrink:0; }
+  .cd-drift.g { color:var(--strong); } .cd-drift.a { color:var(--big); } .cd-drift.r { color:var(--down); }
+  .dnote { margin-top:13px; font-size:12.5px; color:var(--txt-dim); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .cd-legend { display:flex; gap:18px; margin-top:10px; font-size:12px; color:var(--txt-dim); font-weight:600; }
+  .cd-legend span { display:inline-flex; align-items:center; gap:7px; } .cd-legend .dot { width:10px; height:10px; border-radius:50%; }
+  .mk-track { position:relative; height:30px; border-radius:7px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); }
+  .mk { position:absolute; top:-3px; width:2px; height:36px; background:var(--down); transform:translateX(-50%); }
+  .mk::after { content:''; position:absolute; top:-4px; left:50%; transform:translateX(-50%); width:9px; height:9px; border-radius:50%; background:var(--down); box-shadow:0 0 8px rgba(239,106,106,.6); }
+  .mk.ok { background:var(--strong); } .mk.ok::after { background:var(--strong); box-shadow:0 0 8px rgba(70,219,162,.6); }
+  .bw { background:rgba(13,18,36,0.5); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+  .bw:last-child { margin-bottom:0; }
+  .bw-head { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+  .bw-time { font-family:'Cinzel',serif; font-weight:800; font-size:15px; color:#fff; }
+  .bw-buffs { display:flex; gap:5px; align-items:center; }
+  .bw-buffs img { width:20px; height:20px; border-radius:5px; }
+  .bw-verdict { margin-left:auto; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:1px; padding:3px 11px; border-radius:20px; }
+  .bw-verdict.ok { color:var(--strong); background:rgba(70,219,162,0.14); }
+  .bw-verdict.meh { color:var(--big); background:rgba(243,182,63,0.14); }
+  .bw-actions { display:flex; gap:6px; flex-wrap:wrap; }
+  .bw-act { width:30px; height:30px; border-radius:7px; border:1px solid rgba(255,255,255,0.14); }
+  .bw-note { font-size:12.5px; color:#cdd4e6; margin-top:9px; display:flex; align-items:flex-start; gap:8px; line-height:1.5; }
+  .bw-note i { margin-top:1px; }
+  .gauge-cap { font-size:11.5px; color:var(--txt-dim); margin-top:9px; line-height:1.5; }
+
+  /* spell helper */
+  .spell { white-space:nowrap; cursor:help; border-bottom:1px dotted rgba(241,207,126,0.55); font-weight:700; color:#fff; }
+  .spell .sp-ic { width:18px; height:18px; border-radius:4px; vertical-align:-4px; margin-right:3px; }
+  .spell.locked { color:var(--txt-dim); border-bottom-color:rgba(239,106,106,0.5); }
+  .spell.locked .ti { color:var(--down); margin-right:3px; vertical-align:-2px; }
+  .sptip { position:fixed; z-index:200; width:272px; display:none; pointer-events:none;
+    background:linear-gradient(160deg, #1b2440, #10162b); border:1px solid rgba(241,207,126,0.45); border-radius:12px; padding:13px 14px; box-shadow:0 14px 40px rgba(0,0,0,.55); }
+  .sptip .t-head { display:flex; align-items:center; gap:11px; }
+  .sptip img { width:40px; height:40px; border-radius:8px; border:1px solid rgba(255,255,255,.15); }
+  .sptip .t-nm { font-family:'Cinzel',serif; font-size:15px; font-weight:700; color:var(--gold); }
+  .sptip .t-ty { font-size:11px; color:var(--txt-dim); font-weight:600; margin-top:2px; }
+  .sptip .t-sub { font-size:11.5px; color:var(--gold-deep); font-weight:700; margin:9px 0 7px; }
+  .sptip .t-desc { font-size:12.5px; color:#d7dcea; line-height:1.55; }
+
+  .soon { display:flex; align-items:center; gap:12px; padding:13px 18px; border-radius:14px; opacity:0.5; background:rgba(15,21,37,0.4); border:1px dashed var(--line); }
+  .soon .si { font-size:18px; color:var(--txt-dim); } .soon .st { flex:1; font-size:14px; font-weight:600; }
+  .soon .tag { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700; color:var(--gold-deep); border:1px solid rgba(199,154,68,0.4); padding:3px 10px; border-radius:20px; }
+  .foot { text-align:center; color:var(--txt-dim); font-size:11px; letter-spacing:1.5px; margin-top:38px; text-transform:uppercase; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="enc"><div class="enc-sigil"><i class="ti ti-flame"></i></div>
+      <div><h1>Shinryu</h1><div class="sub">Pull #7 · 4:57 · <span class="res">wipe 12%</span></div></div></div>
+    <div class="lvl-crystal"><i class="ti ti-arrow-big-down-lines ic"></i><div><div class="lab">Synchronisé</div><div class="val">Nv. 70</div></div></div>
+  </div>
+
+  <div class="panel hero-band">
+    <div class="hero-id">
+      <div class="pw"><div class="portrait"><i class="ti ti-user"></i><span class="ph-note">portrait Lodestone</span></div><span class="lv-badge">GUERRIER · Nv.70</span></div>
+      <div><div class="pname">Rhesh'a Tefakt</div><div class="prole"><i class="ti ti-axe"></i> Guerrier</div></div>
+    </div>
+    <div class="hero-grade"><div class="grade"><div class="grade-inner"><span class="grade-letter">A</span></div></div><div class="grade-cap">Note globale</div></div>
+    <div class="hero-stats">
+      <div class="ms"><div class="v" style="color:var(--big)">82,7<small>%</small></div><div class="k">Vent de tempête</div></div>
+      <div class="ms"><div class="v">2.48<small>s</small></div><div class="k">GCD moyen</div></div>
+      <div class="ms"><div class="v" style="color:var(--war)">2</div><div class="k">Morts</div></div>
+      <div class="ms"><div class="v">83<small>%</small></div><div class="k">Uptime GCD</div></div>
+    </div>
+  </div>
+
+  <div class="sections">
+
+    <div class="grp-head"><span class="pip big"></span><h2>Gros gain</h2><span class="ct">2</span><span class="rule"></span></div>
+
+    <div class="card big clk">
+      <div class="card-top"><div class="card-ic"><i class="ti ti-sparkles"></i></div>
+        <div class="card-title">Garder <span class="spell" data-id="2677">Surging Tempest</span> actif</div>
+        <div class="card-metric">82,7%</div><i class="ti ti-chevron-down chev"></i></div>
+      <div class="card-body"><span class="spell" data-id="2677">Surging Tempest</span>, c'est ~10% de dégâts tant qu'il est actif — un de tes plus gros leviers. Tu es à 82,7% : pose <span class="spell" data-id="45">Storm's Eye</span> dès l'ouverture et réapplique-le avant qu'il expire pour approcher du plein.</div>
+      <div class="bar"><span id="stBar"></span><div class="target" style="left:97%"></div></div>
+      <div class="bar-legend"><span>actuel</span><span style="color:var(--strong)">cible ~97%</span></div>
+      <div class="detail"><div class="detail-inner">
+        <div class="dstats">
+          <div class="ms"><div class="v" style="color:var(--big)">82,7<small>%</small></div><div class="k">uptime</div></div>
+          <div class="ms"><div class="v" style="color:var(--down)">51<small>s</small></div><div class="k">sans buff</div></div>
+          <div class="ms"><div class="v">3</div><div class="k">chutes</div></div>
+          <div class="ms"><div class="v">19<small>s</small></div><div class="k">+ longue</div></div>
+        </div>
+        <div class="dlabel">Buff actif (or) vs tombé (rouge) sur le combat</div>
+        <div class="tl-track" id="stTl"></div>
+        <div class="tl-axis" id="stAxis"></div>
+        <ul class="downlist" id="stDownList"></ul>
+      </div></div>
+    </div>
+
+    <div class="card big clk">
+      <div class="card-top"><div class="card-ic"><i class="ti ti-flame"></i></div>
+        <div class="card-title">Fenêtres de burst</div><div class="card-metric">2/3</div><i class="ti ti-chevron-down chev"></i></div>
+      <div class="card-body">Tes fenêtres de burst, c'est là que tu concentres tes plus gros coups, sous <span class="spell" data-id="7389">Inner Release</span> et les buffs de groupe. 2 de tes 3 fenêtres étaient bien remplies. À Nv.70 il y a moins de buffs de raid à aligner — l'enjeu est surtout de packer tes oGCD et tes <span class="spell" data-id="3549">Fell Cleave</span> ensemble.</div>
+      <div class="detail"><div class="detail-inner">
+        <div class="dlabel">Chaque fenêtre de burst et ce que tu y as mis</div>
+        <div id="burstWindows"></div>
+      </div></div>
+    </div>
+
+    <div class="grp-head"><span class="pip small"></span><h2>Petit gain</h2><span class="ct">3</span><span class="rule"></span></div>
+
+    <div class="card small clk">
+      <div class="card-top"><div class="card-ic"><i class="ti ti-stopwatch"></i></div>
+        <div class="card-title">Utilisation des cooldowns</div><div class="card-metric" id="cdMetric">+32s</div><i class="ti ti-chevron-down chev"></i></div>
+      <div class="card-body">Tes cooldowns rapportent le plus quand tu les lances dès qu'ils sont prêts. Ici quelques-uns ont été tenus un peu trop longtemps — surtout <span class="spell" data-id="7387">Révolte</span> et <span class="spell" data-id="7386">Assaut violent</span> — soit à peine une utilisation en moins sur le combat. <span class="spell locked" data-id="25752">Orogenèse</span> n'est pas comptée : indisponible à Nv.70.</div>
+      <div class="detail"><div class="detail-inner">
+        <div class="dlabel">Chaque utilisation et son retard éventuel</div>
+        <div id="cdRows"></div>
+        <div class="cd-legend"><span><span class="dot" style="background:var(--strong)"></span> lancé à temps</span><span><span class="dot" style="background:var(--big)"></span> un peu tard</span><span><span class="dot" style="background:var(--down)"></span> tenu trop longtemps</span></div>
+        <div class="dnote"><i class="ti ti-lock" style="color:var(--down)"></i> <span class="spell locked" data-id="25752">Orogeny</span> et les sorts au-dessus de Nv.70 sont exclus du calcul — tu ne les as pas à ce niveau.</div>
+      </div></div>
+    </div>
+
+    <div class="card small clk">
+      <div class="card-top"><div class="card-ic"><i class="ti ti-link"></i></div>
+        <div class="card-title">Continuité des combos</div><div class="card-metric">6</div><i class="ti ti-chevron-down chev"></i></div>
+      <div class="card-body">6 combos interrompus — chaque coupure relance la chaîne et te fait perdre du gain de jauge. Finir le combo avant de bouger pour une mécanique t'en fait gagner pas mal sur la durée.</div>
+      <div class="detail"><div class="detail-inner">
+        <div class="dlabel">Moments où le combo a été cassé</div>
+        <div class="mk-track" id="comboTl"></div><div class="tl-axis" id="comboAxis"></div>
+        <ul class="downlist" id="comboList"></ul>
+      </div></div>
+    </div>
+
+    <div class="card small clk">
+      <div class="card-top"><div class="card-ic"><i class="ti ti-droplet"></i></div>
+        <div class="card-title">Jauge Beast</div><div class="card-metric">30</div><i class="ti ti-chevron-down chev"></i></div>
+      <div class="card-body">30 points de jauge Beast gaspillés (générés alors qu'elle était déjà pleine). Place un <span class="spell" data-id="3549">Fell Cleave</span> avant de la remplir à fond pour ne rien perdre.</div>
+      <div class="detail"><div class="detail-inner">
+        <div class="dlabel">Remplissage de la jauge Bête sur le combat</div>
+        <div id="gaugeChart"></div>
+        <div class="tl-axis" id="gaugeAxis"></div>
+        <div class="gauge-cap">Ligne pointillée = jauge pleine (100). Bandes rouges = jauge gaspillée (générée alors qu'elle était déjà pleine).</div>
+        <ul class="downlist" id="gaugeList"></ul>
+      </div></div>
+    </div>
+
+    <div class="grp-head"><span class="pip strong"></span><h2>Points forts</h2><span class="ct">2</span><span class="rule"></span></div>
+
+    <div class="card strong clk">
+      <div class="card-top"><div class="card-ic"><i class="ti ti-check"></i></div>
+        <div class="card-title"><span class="spell" data-id="7389">Inner Release</span></div><div class="card-metric">100%</div><i class="ti ti-chevron-down chev"></i></div>
+      <div class="card-body">100% de tes fenêtres <span class="spell" data-id="7389">Inner Release</span> consommées, sans stack perdu. Du beau travail, rien à redire.</div>
+      <div class="detail"><div class="detail-inner">
+        <div class="dlabel">Chaque fenêtre Inner Release et ce que tu y as fait</div>
+        <div class="mk-track" id="irTl"></div><div class="tl-axis" id="irAxis"></div>
+        <ul class="downlist" id="irList"></ul>
+      </div></div>
+    </div>
+
+    <div class="card strong clk">
+      <div class="card-top"><div class="card-ic"><i class="ti ti-bolt"></i></div>
+        <div class="card-title">Temps mort</div><div class="card-metric"><i class="ti ti-check" style="font-size:20px"></i></div><i class="ti ti-chevron-down chev"></i></div>
+      <div class="card-body">Tu enchaînes bien tes GCD, très peu de temps mort sur le combat. Solide.</div>
+      <div class="detail"><div class="detail-inner">
+        <div class="dlabel">Les rares pauses entre deux GCD</div>
+        <div class="tl-track" id="deadTl" style="background:linear-gradient(180deg,#3a7a5f,#2c5e49);border-color:rgba(70,219,162,0.3)"></div>
+        <div class="tl-axis" id="deadAxis"></div><ul class="downlist" id="deadList"></ul>
+      </div></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+      <div class="soon"><i class="ti ti-shield-half si"></i><span class="st">Défensives — mit posée sur les gros coups du boss</span><span class="tag">bientôt</span></div>
+      <div class="soon"><i class="ti ti-heart-broken si"></i><span class="st">Survie — ce qui t'a tué et si une mit était dispo</span><span class="tag">bientôt</span></div>
+    </div>
+
+  </div>
+
+  <div class="foot">xiv-mil-analysis · clique une carte · survole un sort pour sa tooltip · analysé au niveau synchronisé</div>
+</div>
+<div class="sptip" id="sptip"></div>
+
+<script>
+  const FIGHT = 297;
+  const pct = s => (s / FIGHT * 100);
+  const mmss = s => `${Math.floor(s/60)}:${String(Math.round(s%60)).padStart(2,'0')}`;
+  const iconUrl = n => `https://xivapi.com/i/${String(Math.floor(n/1000)*1000).padStart(6,'0')}/${String(n).padStart(6,'0')}.png`;
+  const sp = id => `<span class="spell" data-id="${id}"></span>`;
+
+  const SP = {
+    31:{nm:'Coup puissant',ic:260,ty:"Capacité d'arme · GCD",sub:"Recast 2,5s · Nv. 1",desc:"Début de combo."},
+    37:{nm:'Mutilation',ic:255,ty:"Capacité d'arme · GCD",sub:"Recast 2,5s · Nv. 4",desc:"Combo après Coup puissant. +10 de jauge Bête."},
+    42:{nm:'Couperet de justice',ic:258,ty:"Capacité d'arme · GCD",sub:"Recast 2,5s · Nv. 26",desc:"Combo après Mutilation. +20 de jauge Bête et soin."},
+    45:{nm:'Œil de la tempête',ic:264,ty:"Capacité d'arme · GCD",sub:"Recast 2,5s · Nv. 50",desc:"Combo après Mutilation. Accorde Vent de tempête (+10% de dégâts)."},
+    52:{nm:'Cri de guerre',ic:2555,ty:"Aptitude · oGCD",sub:"Recast 60s · 2 charges (Nv. 66) · Nv. 50",desc:"Accorde 50 de jauge Bête."},
+    3549:{nm:'Sape-fendeur',ic:2557,ty:"Capacité d'arme · GCD",sub:"Recast 2,5s · Nv. 54",desc:"Coûte 50 de jauge Bête. Gros dégâts."},
+    7386:{nm:'Assaut violent',ic:2561,ty:"Aptitude · oGCD",sub:"Recast 30s · 2 charges (Nv. 88) · Nv. 62",desc:"Bond vers la cible avec dégâts."},
+    7387:{nm:'Révolte',ic:2562,ty:"Aptitude · oGCD",sub:"Recast 30s · Nv. 64",desc:"Dégâts à la cible et autour d'elle."},
+    7389:{nm:'Relâchement bestial',ic:2564,ty:"Aptitude · oGCD",sub:"Recast 60s · Nv. 70",desc:"Accorde 3 Sape-fendeur garantis critiques et directs."},
+    2677:{nm:'Vent de tempête',ic:212561,ty:"Effet bénéfique",sub:"Durée jusqu'à 60s",desc:"Dégâts augmentés de 10%. Appliqué par Œil de la tempête."},
+    1177:{nm:'Relâchement bestial',ic:217247,ty:"Effet bénéfique",sub:"Durée 15s",desc:"3 Sape-fendeur gratuits, critiques et directs garantis."},
+    25752:{nm:'Orogenèse',locked:true,ty:"Aptitude · verrouillée",sub:"Niveau 86",desc:"Tu ne l'as pas encore à Nv. 70 — donc exclue de ton analyse, pour ne pas te pénaliser sur un sort que tu n'as pas."},
+  };
+
+  function decorate(el){
+    if(el.dataset.done) return; el.dataset.done='1';
+    const d = SP[el.dataset.id]; if(!d) return;
+    if(d.locked){ el.classList.add('locked'); el.innerHTML = `<i class="ti ti-lock"></i>${d.nm}`; }
+    else el.innerHTML = `<img class="sp-ic" src="${iconUrl(d.ic)}" alt="">${d.nm}`;
+  }
+  document.querySelectorAll('.spell[data-id]').forEach(decorate);
+
+  const axisHTML = () => [0,60,120,180,240,FIGHT].map(t=>`<span>${mmss(t)}</span>`).join('');
+  ['stAxis','comboAxis','irAxis','deadAxis','gaugeAxis'].forEach(id=>document.getElementById(id).innerHTML = axisHTML());
+
+  const stDown = [[0,14],[148,166],[245,264]];
+  let up=[], cur=0; stDown.forEach(([a,b])=>{ if(a>cur) up.push([cur,a]); cur=b; }); if(cur<FIGHT) up.push([cur,FIGHT]);
+  document.getElementById('stTl').innerHTML = up.map(([a,b])=>`<span class="tl-up" style="left:${pct(a)}%;width:${pct(b-a)}%"></span>`).join('');
+  document.getElementById('stDownList').innerHTML = [
+    [stDown[0],`avant ton 1ᵉʳ ${sp(45)} (ouverture)`],
+    [stDown[1],'phase aérienne — boss non ciblable'],
+    [stDown[2],`${sp(45)} oublié, buff tombé`],
+  ].map(([[a,b],lbl])=>`<li><b>${mmss(a)} – ${mmss(b)}</b><span>${lbl} · ${Math.round(b-a)}s</span></li>`).join('');
+
+  const cds = [
+    {id:52, rc:'recast 60s · 2 charges', casts:[{t:12,d:0},{t:62,d:1},{t:120,d:0},{t:176,d:3},{t:232,d:0},{t:288,d:1}]},
+    {id:7389, rc:'recast 60s', casts:[{t:10,d:0},{t:72,d:1},{t:140,d:4},{t:206,d:1},{t:272,d:0}]},
+    {id:7387, rc:'recast 30s', casts:[{t:8,d:0},{t:40,d:1},{t:74,d:0},{t:110,d:3},{t:142,d:1},{t:178,d:2},{t:212,d:0},{t:250,d:2},{t:286,d:1}]},
+    {id:7386, rc:'recast 30s · 2 charges', casts:[{t:6,d:0},{t:34,d:0},{t:66,d:2},{t:96,d:1},{t:128,d:0},{t:160,d:3},{t:190,d:1},{t:222,d:0},{t:256,d:4},{t:288,d:0}]},
+  ];
+  const dcls = d => d<=1 ? 'g' : (d<=3 ? 'a' : 'r');
+  let totalDrift = 0;
+  document.getElementById('cdRows').innerHTML = cds.map(cd=>{
+    const td = cd.casts.reduce((s,c)=>s+c.d,0); totalDrift += td;
+    const dots = cd.casts.map(c=>{
+      const cl = dcls(c.d);
+      const lab = c.d>=3 ? `<span class="cd-lab ${cl}" style="left:${pct(c.t)}%">+${Math.round(c.d)}s</span>` : '';
+      return `${lab}<span class="cd-dot ${cl}" style="left:${pct(c.t)}%" title="${mmss(c.t)} · ${c.d?('tenu +'+Math.round(c.d)+'s'):'à temps'}"></span>`;
+    }).join('');
+    const tdc = td<=5 ? 'g' : (td<=12 ? 'a' : 'r');
+    return `<div class="cd-row"><span class="cd-name">${sp(cd.id)}<span class="rc">${cd.rc} à Nv.70</span></span><span class="cd-line"><span class="cd-base"></span>${dots}</span><span class="cd-drift ${tdc}" title="retard cumulé">+${Math.round(td)}s</span></div>`;
+  }).join('');
+  document.getElementById('cdMetric').textContent = `+${Math.round(totalDrift)}s`;
+
+  const combos = [
+    {t:38, act:42, cause:'déplacement'},
+    {t:125, act:37, cause:'saut de mécanique'},
+    {t:187, act:42, cause:'déplacement'},
+    {t:216, act:31, cause:'interruption'},
+    {t:247, act:42, cause:'déplacement'},
+    {t:283, act:37, cause:'mécanique'},
+  ];
+  document.getElementById('comboTl').innerHTML = combos.map(c=>`<span class="mk" style="left:${pct(c.t)}%" title="${mmss(c.t)}"></span>`).join('');
+  document.getElementById('comboList').innerHTML = combos.map(c=>`<li><b>${mmss(c.t)}</b><span>${sp(c.act)} coupé · ${c.cause}</span></li>`).join('');
+
+  const ir = [10,47,84,121,158,195,232,269];
+  document.getElementById('irTl').innerHTML = ir.map(t=>`<span class="mk ok" style="left:${pct(t)}%" title="${mmss(t)}"></span>`).join('');
+  document.getElementById('irList').innerHTML = ir.map(t=>`<li class="ok"><b>${mmss(t)}</b><span>3× ${sp(3549)} · fenêtre pleine</span></li>`).join('');
+
+  const dead = [{a:149,b:155,c:'phase aérienne (boss non ciblable)'},{a:246,b:251,c:'repositionnement mécanique'}];
+  document.getElementById('deadTl').innerHTML = dead.map(d=>`<span class="tl-up" style="left:${pct(d.a)}%;width:${pct(d.b-d.a)}%;background:linear-gradient(180deg,#ef6a6a,#b84747)"></span>`).join('');
+  document.getElementById('deadList').innerHTML = dead.map(d=>`<li><b>${mmss(d.a)} – ${mmss(d.b)}</b><span>${d.c} · ${Math.round(d.b-d.a)}s</span></li>`).join('');
+
+  // Burst windows
+  const burst = [
+    {t:10, v:'ok', acts:[7389,52,3549,3549,3549,7387,7386], note:'Tous tes gros coups dans la fenêtre.'},
+    {t:130, v:'meh', acts:[7389,3549,3549,3549,7387], note:`${sp(7386)} oublié et ${sp(7387)} lancé juste avant la fenêtre — décale-les dedans.`},
+    {t:250, v:'ok', acts:[7389,52,3549,3549,3549,7387,7386], note:'Bien resserrée.'},
+  ];
+  document.getElementById('burstWindows').innerHTML = burst.map(w=>
+    `<div class="bw"><div class="bw-head"><span class="bw-time">${mmss(w.t)}</span>`+
+    `<span class="bw-verdict ${w.v}">${w.v==='ok'?'optimale':'à resserrer'}</span></div>`+
+    `<div class="bw-actions">${w.acts.map(a=>`<img class="bw-act" src="${iconUrl(SP[a].ic)}" title="${SP[a].nm}" alt="">`).join('')}</div>`+
+    `<div class="bw-note"><i class="ti ti-${w.v==='ok'?'check':'arrow-narrow-right'}" style="color:var(--${w.v==='ok'?'strong':'big'})"></i> ${w.note}</div></div>`
+  ).join('');
+
+  // Beast gauge fill graph
+  function gaugeSVG(pts, ovf){
+    const W=1000,top=16,bot=180,h=bot-top, X=t=>t/FIGHT*W, Y=v=>bot-(v/100)*h;
+    const line = pts.map((p,i)=>`${i?'L':'M'}${X(p.t).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' ');
+    const area = `M${X(pts[0].t).toFixed(1)},${bot} `+pts.map(p=>`L${X(p.t).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' ')+` L${X(pts[pts.length-1].t).toFixed(1)},${bot} Z`;
+    const bands = ovf.map(o=>`<rect x="${X(o.a).toFixed(1)}" y="${top}" width="${(X(o.b)-X(o.a)).toFixed(1)}" height="${h}" fill="rgba(239,106,106,0.20)"/><rect x="${X(o.a).toFixed(1)}" y="${top}" width="${(X(o.b)-X(o.a)).toFixed(1)}" height="6" fill="#ef6a6a"/>`).join('');
+    return `<svg viewBox="0 0 ${W} 200" preserveAspectRatio="none" style="width:100%;height:150px;display:block;border-radius:8px;background:rgba(13,18,36,0.5);border:1px solid rgba(255,255,255,0.07)">
+      <defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(243,182,63,0.55)"/><stop offset="1" stop-color="rgba(243,182,63,0.03)"/></linearGradient></defs>
+      ${bands}
+      <line x1="0" y1="${Y(100)}" x2="${W}" y2="${Y(100)}" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="7 7" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="${Y(50)}" x2="${W}" y2="${Y(50)}" stroke="rgba(255,255,255,0.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <path d="${area}" fill="url(#gg)"/>
+      <path d="${line}" fill="none" stroke="#f3b63f" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+    </svg>`;
+  }
+  const gPts = [[0,0],[8,10],[16,30],[24,40],[31,40],[39,60],[47,80],[55,90],[62,90],[70,100],[81,100],[83,50],[91,60],[99,80],[107,90],[115,40],[123,60],[131,80],[139,90],[147,100],[160,100],[162,50],[170,70],[178,90],[186,40],[194,60],[202,80],[210,90],[218,50],[226,70],[234,90],[242,100],[250,60],[258,70],[266,90],[274,40],[282,60],[290,70],[297,70]].map(([t,v])=>({t,v}));
+  const gOvf = [{a:70,b:81,lost:20},{a:147,b:160,lost:10}];
+  document.getElementById('gaugeChart').innerHTML = gaugeSVG(gPts, gOvf);
+  document.getElementById('gaugeList').innerHTML = gOvf.map(o=>`<li><b>${mmss(o.a)} – ${mmss(o.b)}</b><span>jauge pleine · ${o.lost} de jauge perdus</span></li>`).join('');
+
+  // decorate spell spans created during dynamic rendering
+  document.querySelectorAll('.spell[data-id]').forEach(decorate);
+
+  // tooltip
+  const tip = document.getElementById('sptip');
+  document.body.addEventListener('mouseover', e=>{
+    const s = e.target.closest('.spell'); if(!s) return; const d = SP[s.dataset.id]; if(!d) return;
+    const nm = d.nm;
+    tip.innerHTML = `<div class="t-head">${d.locked?'<div style="width:40px;height:40px;border-radius:8px;display:grid;place-items:center;background:rgba(239,106,106,.15);color:var(--down);font-size:20px"><i class="ti ti-lock"></i></div>':`<img src="${iconUrl(d.ic)}" alt="">`}<div><div class="t-nm">${nm}</div><div class="t-ty">${d.ty}</div></div></div><div class="t-sub">${d.sub}</div><div class="t-desc">${d.desc}</div>`;
+    tip.style.display='block';
+    const r = s.getBoundingClientRect();
+    let top = r.top - tip.offsetHeight - 10; if(top<8) top = r.bottom + 10;
+    tip.style.top = top+'px';
+    tip.style.left = Math.min(window.innerWidth-tip.offsetWidth-8, Math.max(8, r.left))+'px';
+  });
+  document.body.addEventListener('mouseout', e=>{ if(e.target.closest('.spell')) tip.style.display='none'; });
+
+  document.querySelectorAll('.card.clk').forEach(c=>c.addEventListener('click', ()=>c.classList.toggle('open')));
+  window.addEventListener('load', ()=>setTimeout(()=>document.getElementById('stBar').style.width='82.7%', 300));
+</script>
+</body>
+</html>

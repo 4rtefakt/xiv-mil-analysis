@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>breakdown — mosaïque</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .hero-mini { display: flex; align-items: center; gap: 22px; padding: 18px 26px; margin-bottom: 18px; }
+  .hero-mini .pw { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .hero-mini .portrait { width: 80px; height: 80px; font-size: 36px; }
+  .hero-mini .portrait .ph-note { display: none; }
+  .hero-mini .grade { width: 80px; height: 80px; }
+  .hero-mini .grade-letter { font-size: 36px; }
+  .hero-mini .idblock { flex: 1; }
+  .hero-mini .ministats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .legend { display: flex; gap: 16px; align-items: center; margin: 4px 2px 14px; flex-wrap: wrap; }
+  .legend .li { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--txt-dim); font-weight: 600; }
+  .legend .li .pip { width: 10px; height: 10px; border-radius: 50%; }
+  .mosaic { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  .mosaic .span2 { grid-column: 1 / -1; }
+  .cat { font-size: 9.5px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 800; padding: 3px 9px; border-radius: 20px; }
+  .big .cat { color: #3a2a06; background: var(--big); }
+  .small .cat { color: #06303a; background: var(--small); }
+  .strong .cat { color: #04382a; background: var(--strong); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="enc">
+      <div class="enc-sigil"><i class="ti ti-flame"></i></div>
+      <div><h1>Shinryu</h1><div class="sub">Pull #7 · 4:57 · <span class="res">wipe 12%</span></div></div>
+    </div>
+    <div class="lvl-crystal"><i class="ti ti-arrow-big-down-lines ic"></i><div><div class="lab">Synchronisé</div><div class="val">Nv. 70</div></div></div>
+  </div>
+
+  <div class="panel hero-mini">
+    <div class="pw">
+      <div class="portrait"><i class="ti ti-user"></i></div>
+      <span class="lv-badge">Nv.70</span>
+    </div>
+    <div class="idblock">
+      <div class="pname">Rhesh'a Tefakt</div>
+      <div class="prole"><i class="ti ti-axe"></i> Guerrier · synchronisé</div>
+    </div>
+    <div style="text-align:center">
+      <div class="grade"><div class="grade-inner"><span class="grade-letter">A</span></div></div>
+    </div>
+    <div class="ministats" style="min-width:380px">
+      <div class="ms"><div class="v" style="color:var(--big)">82,7<small>%</small></div><div class="k">S. Tempest</div></div>
+      <div class="ms"><div class="v">2.48<small>s</small></div><div class="k">GCD</div></div>
+      <div class="ms"><div class="v" style="color:var(--war)">2</div><div class="k">Morts</div></div>
+      <div class="ms"><div class="v">83<small>%</small></div><div class="k">Uptime</div></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="li"><span class="pip big" style="box-shadow:0 0 10px var(--big)"></span> Gros gain</span>
+    <span class="li"><span class="pip small" style="box-shadow:0 0 10px var(--small)"></span> Petit gain</span>
+    <span class="li"><span class="pip strong" style="box-shadow:0 0 10px var(--strong)"></span> Point fort</span>
+  </div>
+
+  <div class="mosaic">
+
+    <div class="card big span2" style="animation-delay:.05s">
+      <div class="card-top">
+        <div class="card-ic"><i class="ti ti-sparkles"></i></div>
+        <div class="card-title">Garder Surging Tempest actif <span class="cat">Gros gain</span></div>
+        <div class="card-metric">82,7%</div>
+      </div>
+      <div class="card-body">
+        En gardant Surging Tempest actif, tu gagnes ~10% de dégâts presque gratuitement. Tu es déjà à 82,7% — en lançant Storm's Eye un peu plus tôt et en le rafraîchissant avant qu'il tombe, tu récupères le reste tranquillement.
+      </div>
+      <div class="bar"><span id="stBar"></span><div class="target" style="left:97%"></div></div>
+      <div class="bar-legend"><span>maintenant</span><span style="color:var(--strong)">objectif tranquille ~97%</span></div>
+    </div>
+
+    <div class="card small" style="animation-delay:.12s">
+      <div class="card-top">
+        <div class="card-ic"><i class="ti ti-stopwatch"></i></div>
+        <div class="card-title">Cooldowns <span class="cat">Petit gain</span></div>
+        <div class="card-metric">43/52</div>
+      </div>
+      <div class="card-body">Quelques oGCD en plus par combat = un peu plus de dégâts, sans stress. <span class="hl">Orogeny non comptée — pas encore au Nv.70, normal !</span></div>
+    </div>
+
+    <div class="card small" style="animation-delay:.18s">
+      <div class="card-top">
+        <div class="card-ic"><i class="ti ti-link"></i></div>
+        <div class="card-title">Combos fluides <span class="cat">Petit gain</span></div>
+        <div class="card-metric">6</div>
+      </div>
+      <div class="card-body">Quand une mécanique coupe ton combo, tu repars au début. Ça arrive — les garder fluides quand tu peux aide un peu.</div>
+    </div>
+
+    <div class="card strong" style="animation-delay:.24s">
+      <div class="card-top">
+        <div class="card-ic"><i class="ti ti-check"></i></div>
+        <div class="card-title">Inner Release <span class="cat">Point fort</span></div>
+        <div class="card-metric">100%</div>
+      </div>
+      <div class="card-body">Super — toutes tes fenêtres Inner Release sont bien consommées. Rien à changer ici !</div>
+    </div>
+
+    <div class="card strong" style="animation-delay:.30s">
+      <div class="card-top">
+        <div class="card-ic"><i class="ti ti-bolt"></i></div>
+        <div class="card-title">Peu de temps mort <span class="cat">Point fort</span></div>
+        <div class="card-metric"><i class="ti ti-check" style="font-size:20px"></i></div>
+      </div>
+      <div class="card-body">Tu enchaînes bien tes sorts, peu de pauses entre deux. Beau boulot.</div>
+    </div>
+
+  </div>
+
+  <div class="foot">xiv-mil-analysis · layout mosaïque · analysé au niveau synchronisé</div>
+</div>
+<script>window.addEventListener('load',()=>setTimeout(()=>document.getElementById('stBar').style.width='82.7%',300));</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>breakdown — coach guidé</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .coach-id { display: flex; align-items: center; gap: 14px; padding: 14px 20px; margin-bottom: 22px; }
+  .coach-id .portrait { width: 56px; height: 56px; font-size: 26px; border-width: 2px; box-shadow: 0 0 0 4px rgba(232,83,74,0.16), 0 0 22px rgba(232,83,74,0.28); }
+  .coach-id .portrait .ph-note { display: none; }
+  .coach-id .nm { flex: 1; }
+  .coach-id .nm .pname { font-size: 18px; }
+  .coach-id .nm .prole { font-size: 12px; }
+  .coach-id .grade { width: 50px; height: 50px; animation: none; transform: none; opacity: 1; box-shadow: 0 0 18px rgba(111,200,232,0.3); }
+  .coach-id .grade-letter { font-size: 24px; }
+
+  .intro { text-align: center; color: var(--txt-dim); font-size: 14px; margin-bottom: 16px; font-weight: 600; }
+  .intro b { color: var(--txt); }
+
+  .stage { max-width: 680px; margin: 0 auto; padding: 32px 36px; text-align: center; transition: border-color .3s; }
+  .cat-chip { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 800; padding: 5px 14px; border-radius: 20px; }
+  .stage-ic { width: 76px; height: 76px; border-radius: 22px; display: grid; place-items: center; font-size: 38px; margin: 18px auto 4px; }
+  .stage h3 { font-family: 'Cinzel', serif; font-size: 24px; color: #fff; margin-top: 14px; }
+  .stage .metric { font-family: 'Cinzel', serif; font-size: 42px; font-weight: 800; margin-top: 8px; }
+  .stage .body { color: #cdd4e6; font-size: 15px; line-height: 1.7; margin: 14px auto 0; max-width: 540px; }
+  .stage .body .hl { color: var(--strong); font-weight: 700; }
+  .stage .bar { max-width: 540px; margin: 20px auto 0; }
+  .steps { list-style: none; max-width: 520px; margin: 22px auto 0; text-align: left; display: flex; flex-direction: column; gap: 10px; }
+  .steps li { display: flex; align-items: flex-start; gap: 11px; font-size: 14px; color: #dde3f0; line-height: 1.5; }
+  .steps li i { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+
+  .nav { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 26px auto 0; }
+  .nav button { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: rgba(30,39,70,0.6); color: var(--txt); font-size: 20px; cursor: pointer; display: grid; place-items: center; transition: transform .15s, background .2s, border-color .2s; }
+  .nav button:hover { background: rgba(40,52,92,0.8); border-color: rgba(241,207,126,0.5); transform: scale(1.07); }
+  .nav button:active { transform: scale(0.95); }
+  .dots { display: flex; gap: 9px; }
+  .dots .d { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.18); cursor: pointer; transition: all .25s; }
+  .dots .d.on { width: 26px; border-radius: 5px; }
+  .counter { text-align: center; color: var(--txt-dim); font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="enc">
+      <div class="enc-sigil"><i class="ti ti-flame"></i></div>
+      <div><h1>Shinryu</h1><div class="sub">Pull #7 · 4:57 · <span class="res">wipe 12%</span></div></div>
+    </div>
+    <div class="lvl-crystal"><i class="ti ti-arrow-big-down-lines ic"></i><div><div class="lab">Synchronisé</div><div class="val">Nv. 70</div></div></div>
+  </div>
+
+  <div class="panel coach-id">
+    <div class="portrait"><i class="ti ti-user"></i></div>
+    <div class="nm"><div class="pname">Rhesh'a Tefakt</div><div class="prole"><i class="ti ti-axe"></i> Guerrier · synchronisé Nv.70</div></div>
+    <div class="grade"><div class="grade-inner"><span class="grade-letter">A</span></div></div>
+  </div>
+
+  <div class="intro">Classé par impact — <b>du plus rentable au déjà acquis</b>.</div>
+
+  <div class="panel stage" id="stage"></div>
+
+  <div class="nav">
+    <button id="prev" aria-label="précédent"><i class="ti ti-chevron-left"></i></button>
+    <div class="dots" id="dots"></div>
+    <button id="next" aria-label="suivant"><i class="ti ti-chevron-right"></i></button>
+  </div>
+  <div class="counter" id="counter"></div>
+
+  <div class="foot">xiv-mil-analysis · layout coach guidé · analysé au niveau synchronisé</div>
+</div>
+
+<script>
+  const C = { big:{c:'#f3b63f', t:'#3a2a06', lab:'Gros gain'}, small:{c:'#6fc8e8', t:'#06303a', lab:'Petit gain'}, strong:{c:'#46dba2', t:'#04382a', lab:'Point fort'} };
+  const items = [
+    { cat:'big', icon:'ti-sparkles', title:'Garder Surging Tempest actif', metric:'82,7%',
+      body:"Surging Tempest donne ~10% de dégâts tant qu'il est actif. Tu es à 82,7% : pose Storm's Eye dès l'ouverture et réapplique-le avant qu'il expire pour viser le quasi-100%.",
+      bar:82.7, steps:["Pose Storm's Eye tôt dans l'ouverture","Boucle Heavy Swing → Maim → Storm's Eye","Réapplique-le avant la fin des 30s"] },
+    { cat:'small', icon:'ti-stopwatch', title:'Utilisation des cooldowns', metric:'43/52',
+      body:"43 oGCD utilisés sur 52 possibles. Lancer Infuriate et Upheaval dès qu'ils sont disponibles récupère ces dégâts.",
+      hl:"Orogeny n'est pas comptée : indisponible au Nv.70.",
+      steps:["Lance Infuriate et Upheaval dès qu'ils sont prêts","Évite de les garder trop longtemps en réserve"] },
+    { cat:'small', icon:'ti-link', title:'Continuité des combos', metric:'6',
+      body:"6 combos interrompus — chaque rupture relance la chaîne et perd du gain de jauge. Terminer le combo avant de te déplacer pour une mécanique limite la casse.",
+      steps:["Repère les moments où tu dois te déplacer","Termine ton combo avant de bouger"] },
+    { cat:'strong', icon:'ti-check', title:'Inner Release', metric:'100%',
+      body:"100% de tes fenêtres Inner Release consommées, sans stack perdu. Rien à redire ici.", steps:[] },
+    { cat:'strong', icon:'ti-bolt', title:'Temps mort', metric:'✓',
+      body:"Bon enchaînement des GCD, peu de temps mort sur le combat.", steps:[] },
+  ];
+
+  let i = 0;
+  const stage = document.getElementById('stage');
+  const dots = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  dots.innerHTML = items.map((_,k)=>`<span class="d" data-k="${k}"></span>`).join('');
+
+  function render() {
+    const it = items[i], col = C[it.cat];
+    stage.style.borderColor = col.c + '66';
+    stage.innerHTML =
+      `<span class="cat-chip" style="background:${col.c};color:${col.t}"><i class="ti ${it.icon}"></i> ${col.lab}</span>`+
+      `<div class="stage-ic" style="color:${col.c};background:${col.c}22"><i class="ti ${it.icon}"></i></div>`+
+      `<h3>${it.title}</h3>`+
+      `<div class="metric" style="color:${col.c}">${it.metric==='✓'?'<i class=\"ti ti-check\"></i>':it.metric}</div>`+
+      `<p class="body">${it.body}${it.hl?` <span class="hl">${it.hl}</span>`:''}</p>`+
+      (it.bar!=null?`<div class="bar"><span style="background:linear-gradient(90deg,#c79a44,${col.c});box-shadow:0 0 14px ${col.c}99"></span><div class="target" style="left:97%"></div></div>`:'')+
+      (it.steps&&it.steps.length?`<ul class="steps">${it.steps.map(s=>`<li><i class="ti ti-arrow-right" style="color:${col.c}"></i><span>${s}</span></li>`).join('')}</ul>`:'');
+    if (it.bar!=null) { const b=stage.querySelector('.bar>span'); requestAnimationFrame(()=>setTimeout(()=>b.style.width=it.bar+'%',60)); }
+    [...dots.children].forEach((d,k)=>{ d.classList.toggle('on',k===i); d.style.background = k===i?col.c:'rgba(255,255,255,0.18)'; });
+    counter.textContent = `${i+1} / ${items.length}`;
+  }
+  document.getElementById('prev').onclick = ()=>{ i=(i-1+items.length)%items.length; render(); };
+  document.getElementById('next').onclick = ()=>{ i=(i+1)%items.length; render(); };
+  dots.onclick = e=>{ const k=e.target.dataset.k; if(k!=null){ i=+k; render(); } };
+  render();
+</script>
+</body>
+</html>
